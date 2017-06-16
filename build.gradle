@@ -22,11 +22,13 @@
     2. gradle clean             
     3. gradle test 
     4. gradle build
-    5. gradle run
-    6. gradle clean test build run      
-        
-    7. gradle --stacktrace clean build appRun       #run jetty
-    8. gradle integrationTest                       #run jetty with IT
+  
+    5. gradle --stacktrace clean build appRun       #run jetty
+       
+    Deploy and Run
+    6. gradle clean test build
+    7. put the ./build/libs/captcha.war into tomcat/jetty to run
+    
         
 ============================================================================
 */
@@ -34,8 +36,10 @@
 
 apply plugin: 'java'
 
+compileJava.options.encoding = 'UTF-8'
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
+sourceSets.main.output.resourcesDir = sourceSets.main.output.classesDir
 
 repositories {
     mavenCentral()
@@ -49,11 +53,18 @@ dependencies {
     // for using org.apache.logging.log4j.web.Log4jServletContextListener 
     compile "org.apache.logging.log4j:log4j-web:2.7"
     
-    compile "javax.servlet:servlet-api:2.5"
-    compile "javax.servlet:jsp-api:2.0"
+    compile "org.jsoup:jsoup:1.10.2"
+    compile "org.json:json:20170516"
     
+    // if compile, they'll be packed into war too, which might be conflict with actual container lib
+    compileOnly "javax.servlet:servlet-api:2.5"
+    compileOnly "javax.servlet:jsp-api:2.0"
+
     testCompile 'junit:junit:4.11'
 }
+
+//------------------------------------------------------------------------------------------------
+
 
 apply plugin: 'org.akhikhl.gretty'
 
@@ -84,9 +95,27 @@ gretty {
     httpsPort = 8443
     sslKeyStorePath = 'some.jks'
     sslKeyStorePassword = 'somepwd'  
-    
-    
 }
+
+
+//------------------------------------------------------------------------------------------------
+
+
+apply plugin: 'war'
+
+war {
+    group = "google"
+    baseName = "recaptcha"
+
+    /*
+    from {
+        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+    */
+}
+
+
+//------------------------------------------------------------------------------------------------
 
 
 apply plugin: 'eclipse'
