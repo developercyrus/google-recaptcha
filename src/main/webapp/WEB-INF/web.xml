@@ -7,6 +7,9 @@
 
 	<display-name>google-captcha</display-name>
 
+    <listener>
+            <listener-class>org.apache.logging.log4j.web.Log4jServletContextListener</listener-class>
+    </listener>
     
     <servlet>
         <servlet-name>GoogleLoginServlet</servlet-name>
